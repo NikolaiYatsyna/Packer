@@ -1,0 +1,59 @@
+{
+  "variables": {
+    "docker_registry": "us.gcr.io",
+    "project_id": "",
+    "google_key": "",
+    "version": "",
+    "image_name": "build_packer_template_slave",
+    "base_image": "slave_base_image:latest"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `base_image`}}",
+      "pull": true,
+      "commit": true,
+      "login": "true",
+      "login_server": "https://{{user `docker_registry`}}",
+      "login_username": "_json_key",
+      "login_password": "{{user `google_key`}}",
+      "message": "{{user `image_name`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "ansible-local",
+      "playbook_file": "./playbook.yml"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `image_name`}}",
+        "tag": "{{user `version`}}"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "https://{{user `docker_registry` }}",
+        "login_username": "_json_key",
+        "login_password": "{{user `google_key`}}"
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `image_name`}}",
+        "tag": "latest"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "https://{{user `docker_registry` }}",
+        "login_username": "_json_key",
+        "login_password": "{{user `google_key`}}"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "variables": {
+    "docker_registry": "",
+    "project_id": "",
+    "google_key": "",
+    "version": "",
+    "image_name": "slave_base_image"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "alpine",
+      "pull": true,
+      "commit": true,
+      "message": "{{user `image_name`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": "apk add git unzip ansible"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `image_name`}}",
+        "tag": "{{user `version`}}"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "https://{{user `docker_registry` }}",
+        "login_username": "_json_key",
+        "login_password": "{{user `google_key`}}"
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `image_name`}}",
+        "tag": "latest"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "https://{{user `docker_registry` }}",
+        "login_username": "_json_key",
+        "login_password": "{{user `google_key`}}"
+      }
+    ]
+  ]
+}
