@@ -17,7 +17,6 @@ pipeline {
         docker_registry = "us.gcr.io"
         project_id = "stoked-monitor-275907"
         credentials = "google_secret"
-        vars_location = "${WORKSPACE}/temp/packer-vars.json"
     }
     stages {
         stage('Validate template') {
