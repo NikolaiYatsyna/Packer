@@ -35,7 +35,7 @@ pipeline {
                     dir(template) {
                         script {
                             def hash = sh returnStdout: true, script: 'git rev-parse --short HEAD'
-                            withCredentials([string(credentials: credentials, variable: 'google_key')]) {
+                            withCredentials([string(credentialsId: credentials, variable: 'google_key')]) {
                                 sh "packer build " +
                                     "-var docker_registry=${env.docker_registry} " +
                                     "-var project_id=${env.project_id} " +
