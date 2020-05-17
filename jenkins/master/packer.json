@@ -1,0 +1,62 @@
+{
+  "variables": {
+    "docker_registry": "",
+    "project_id": "",
+    "google_key": "",
+    "version": "",
+    "image_name": "jenkins-master"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "jenkins/jenkins",
+      "pull": true,
+      "commit": true,
+      "message": "{{user `image_name`}}",
+      "changes": [
+        "ENTRYPOINT [\"/sbin/tini\", \"--\", \"/usr/local/bin/jenkins.sh\"]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "plugins.txt",
+      "destination": "/usr/share/jenkins/ref/plugins.txt"
+    },
+    {
+      "type": "shell",
+      "inline": "/usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `image_name`}}",
+        "tag": "{{user `version`}}"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "https://{{user `docker_registry` }}",
+        "login_username": "_json_key",
+        "login_password": "{{user `google_key`}}"
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `docker_registry`}}/{{user `project_id`}}/{{user `image_name`}}",
+        "tag": "latest"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "https://{{user `docker_registry` }}",
+        "login_username": "_json_key",
+        "login_password": "{{user `google_key`}}"
+      }
+    ]
+  ]
+}
