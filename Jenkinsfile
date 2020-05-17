@@ -11,7 +11,7 @@ pipeline {
         timestamps()
     }
     parameters {
-        choice name: 'template', choices: ['jenkins/slave/base_image', 'jenkins/slave/build_template'], description: 'Template to build'
+        choice name: 'template', choices: ['jenkins/slave/base_image', 'jenkins/slave/build_template', 'jenkins/master'], description: 'Template to build'
     }
     environment {
         docker_registry = "us.gcr.io"
